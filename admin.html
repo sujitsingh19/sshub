@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SS Hub - Affiliate Post & Code Generator</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --maroon-primary: #5c0011;
+            --maroon-dark: #3a000b;
+            --gold-accent: #ffb703;
+            --bg-light: #fefaf6;
+            --text-dark: #222222;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+        body { background: var(--bg-light); color: var(--text-dark); padding-bottom: 50px; }
+
+        header {
+            background: var(--maroon-dark);
+            color: #fff;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid var(--gold-accent);
+        }
+        header h1 { font-size: 18px; color: var(--gold-accent); }
+        .home-link { background: var(--gold-accent); color: #000; text-decoration: none; padding: 8px 15px; border-radius: 20px; font-weight: 700; font-size: 13px; }
+
+        .container { max-width: 1100px; margin: 30px auto; padding: 0 20px; }
+        .card-box { background: #fff; border-radius: 10px; padding: 25px; box-shadow: 0 4px 15px rgba(0,0,0,0.06); border: 1px solid #eee; margin-bottom: 30px; }
+        .card-box h2 { color: var(--maroon-primary); font-size: 18px; margin-bottom: 18px; padding-bottom: 8px; border-bottom: 2px solid #f0f0f0; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 6px; }
+        .form-group.full { grid-column: 1 / -1; }
+        label { font-size: 13px; font-weight: 600; color: #444; }
+        input { padding: 10px; border: 1.5px solid #ddd; border-radius: 6px; font-size: 14px; outline: none; }
+        input:focus { border-color: var(--maroon-primary); }
+
+        .btn-row { display: flex; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+        .btn { padding: 11px 20px; border: none; border-radius: 6px; font-weight: 700; font-size: 14px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: var(--maroon-primary); color: #fff; }
+        .btn-success { background: #2d6a4f; color: #fff; }
+        .btn-danger { background: #d90429; color: #fff; padding: 6px 12px; font-size: 12px; }
+        .btn-edit { background: #ffb703; color: #000; padding: 6px 12px; font-size: 12px; }
+
+        .product-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 18px; }
+        .item-card { border: 1px solid #e5e5e5; border-radius: 8px; overflow: hidden; background: #fff; display: flex; flex-direction: column; }
+        .item-card img { width: 100%; height: 150px; object-fit: cover; background: #f4f4f4; }
+        .item-body { padding: 12px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        .item-title { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+        .item-meta { font-size: 13px; color: var(--maroon-primary); font-weight: 700; margin-bottom: 10px; }
+        .item-actions { display: flex; gap: 8px; }
+
+        .toast { position: fixed; bottom: 20px; right: 20px; background: #1b4332; color: #fff; padding: 12px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; display: none; box-shadow: 0 4px 12px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>👗 SS HUB - Affiliate Code Generator</h1>
+        <a href="index.html" target="_blank" class="home-link"><i class="fa-solid fa-eye"></i> Live Website Dekhein</a>
+    </header>
+
+    <div class="container">
+        <div class="card-box" style="background: #fdf0ed; border-left: 5px solid #2d6a4f;">
+            <h2><i class="fa-solid fa-code"></i> Step 2: products.html ke liye Code Generate Karein</h2>
+            <p style="font-size: 14px; color: #444; margin-bottom: 15px;">Saare products add karne ke baad yahan click karein. Code copy ho jayega, phir use <b>products.html</b> file mein paste karke save kar dein.</p>
+            <button class="btn btn-success" onclick="generateAndCopyCode()"><i class="fa-solid fa-copy"></i> 📋 Copy Products HTML Code</button>
+        </div>
+
+        <div class="card-box">
+            <h2 id="formHeading"><i class="fa-solid fa-plus-circle"></i> Naya Product Jodein</h2>
+            <form id="productForm">
+                <input type="hidden" id="editIndex" value="-1">
+                <div class="form-grid">
+                    <div class="form-group full">
+                        <label>Product Ka Naam (Title) *</label>
+                        <input type="text" id="title" placeholder="Jaise: Gold Plated Jhumka Earrings" required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Product Image Direct Link *</label>
+                        <input type="url" id="image" placeholder="https://m.media-amazon.com/images/..." required>
+                    </div>
+                    <div class="form-group full">
+                        <label>Amazon Affiliate Buy Link *</label>
+                        <input type="url" id="buyLink" placeholder="https://amzn.to/..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Offer Price (₹) *</label>
+                        <input type="number" id="price" placeholder="299" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Purani MRP (₹)</label>
+                        <input type="number" id="oldPrice" placeholder="599">
+                    </div>
+                    <div class="form-group">
+                        <label>Discount (Optional)</label>
+                        <input type="text" id="discount" placeholder="50% OFF">
+                    </div>
+                </div>
+                <div class="btn-row">
+                    <button type="submit" class="btn btn-primary" id="submitBtn"><i class="fa-solid fa-check"></i> List Me Jodein</button>
+                    <button type="button" class="btn" id="cancelEditBtn" style="display:none; background:#ccc;" onclick="resetForm()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="card-box">
+            <h2><i class="fa-solid fa-list"></i> Added Products (<span id="countText">0</span>)</h2>
+            <div class="product-list" id="adminProductList"></div>
+        </div>
+    </div>
+
+    <div class="toast" id="toastMsg">Code copied successfully!</div>
+
+    <script>
+        const STORAGE_KEY = 'ssHubSavedProductsList';
+
+        function getProducts() {
+            const data = localStorage.getItem(STORAGE_KEY);
+            return data ? JSON.parse(data) : [
+                {
+                    title: "Gold Plated Traditional Jhumka Earrings for Women",
+                    image: "https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?w=400",
+                    buyLink: "#",
+                    price: "249",
+                    oldPrice: "599",
+                    discount: "58% OFF"
+                },
+                {
+                    title: "Pure Cotton King Size Floral Double Bedsheet with 2 Pillow Covers",
+                    image: "https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400",
+                    buyLink: "#",
+                    price: "499",
+                    oldPrice: "999",
+                    discount: "50% OFF"
+                }
+            ];
+        }
+
+        function saveProducts(list) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+            renderAdminList();
+        }
+
+        document.getElementById('productForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('title').value.trim();
+            const image = document.getElementById('image').value.trim();
+            const buyLink = document.getElementById('buyLink').value.trim();
+            const price = document.getElementById('price').value.trim();
+            const oldPrice = document.getElementById('oldPrice').value.trim();
+            let discount = document.getElementById('discount').value.trim();
+
+            if (!discount && oldPrice && Number(oldPrice) > Number(price)) {
+                const off = Math.round(((Number(oldPrice) - Number(price)) / Number(oldPrice)) * 100);
+                discount = off + "% OFF";
+            }
+
+            const newItem = { title, image, buyLink, price, oldPrice, discount };
+            const list = getProducts();
+            const editIdx = Number(document.getElementById('editIndex').value);
+
+            if (editIdx >= 0) { list[editIdx] = newItem; } 
+            else { list.unshift(newItem); }
+
+            saveProducts(list);
+            resetForm();
+            showToast("Product list mein jud gaya!");
+        });
+
+        function generateAndCopyCode() {
+            const list = getProducts();
+            let htmlCode = "";
+
+            list.forEach(item => {
+                htmlCode += `
+                <div class="product-card">
+                    ${item.discount ? `<span class="discount-badge">${item.discount}</span>` : ''}
+                    <img class="product-img" src="${item.image}" alt="${item.title}" loading="lazy">
+                    <div class="product-info">
+                        <div class="product-title">${item.title}</div>
+                        <div class="price-box">
+                            <span class="current-price">₹${item.price}</span>
+                            ${item.oldPrice ? `<span class="old-price">₹${item.oldPrice}</span>` : ''}
+                        </div>
+                        <a href="${item.buyLink}" class="buy-btn" target="_blank" rel="nofollow sponsored">BUY ON AMAZON</a>
+                    </div>
+                </div>`;
+            });
+
+            navigator.clipboard.writeText(htmlCode).then(() => {
+                showToast("✅ Code Copied! Ab products.html mein paste kar dein.");
+            }).catch(err => {
+                alert("Copy nahi ho paya.");
+            });
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastMsg');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        function editProduct(index) {
+            const item = getProducts()[index];
+            document.getElementById('title').value = item.title;
+            document.getElementById('image').value = item.image;
+            document.getElementById('buyLink').value = item.buyLink;
+            document.getElementById('price').value = item.price;
+            document.getElementById('oldPrice').value = item.oldPrice || '';
+            document.getElementById('discount').value = item.discount || '';
+            document.getElementById('editIndex').value = index;
+            document.getElementById('formHeading').innerHTML = '<i class="fa-solid fa-pen"></i> Product Edit Karein';
+            document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-save"></i> Update Karein';
+            document.getElementById('cancelEditBtn').style.display = 'inline-flex';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function deleteProduct(index) {
+            if (confirm("Kya aap is product ko hatana chahte hain?")) {
+                const list = getProducts();
+                list.splice(index, 1);
+                saveProducts(list);
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('productForm').reset();
+            document.getElementById('editIndex').value = -1;
+            document.getElementById('formHeading').innerHTML = '<i class="fa-solid fa-plus-circle"></i> Naya Product Jodein';
+            document.getElementById('submitBtn').innerHTML = '<i class="fa-solid fa-check"></i> List Me Jodein';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+        }
+
+        function renderAdminList() {
+            const list = getProducts();
+            document.getElementById('countText').innerText = list.length;
+            const container = document.getElementById('adminProductList');
+            container.innerHTML = '';
+
+            if (list.length === 0) {
+                container.innerHTML = '<p style="color:#666;">Koi product nahi hai.</p>';
+                return;
+            }
+
+            list.forEach((item, idx) => {
+                container.innerHTML += `
+                    <div class="item-card">
+                        <img src="${item.image}" alt="${item.title}">
+                        <div class="item-body">
+                            <div>
+                                <div class="item-title">${item.title}</div>
+                                <div class="item-meta">₹${item.price}</div>
+                            </div>
+                            <div class="item-actions">
+                                <button class="btn btn-edit" onclick="editProduct(${idx})"><i class="fa-solid fa-pen"></i></button>
+                                <button class="btn btn-danger" onclick="deleteProduct(${idx})"><i class="fa-solid fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        renderAdminList();
+    </script>
+</body>
+</html>
